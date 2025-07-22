@@ -1,0 +1,73 @@
+<div class="sidebar-wrapper">
+  <button class="sidebar-toggle" (click)="toggleSidebar()">
+    <i class="material-icons">menu</i>a
+  </button>
+  <div class="sidebar" [class.collapsed]="collapsed" [class.hidden-mobile]="collapsedOnMobile">
+    <div class="sidebar-header">
+      <a href="/">
+        <img src="assets/icon/logoTank.png" alt="Smart Tank Logo" class="logo-img" />
+        <span class="logo-text"><b>Smart</b> <span class="logo-accent">Tank</span></span>
+      </a>
+    </div>
+    <div class="search-container">
+      <div class="search-input">
+        <i class="material-icons search-icon">search</i>
+        <input type="text" placeholder="Search" />
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="material-icons icon">dash</i>
+            <span class="nav-text">Seguimiento</span>
+          </a>
+        </li>
+        <li class="nav-item active">
+          <a href="#" class="nav-link">
+            <i class="material-icons icon accent">groups</i>
+            <span class="nav-text accent">Graficas</span>
+            <i class="material-icons expand-icon accent">expand_more</i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="material-icons icon">assignment</i>
+            <span class="nav-text">Informes de</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="material-icons icon">public</i>
+            <span class="nav-text">Objetivos de</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/tank-level" class="nav-link">
+            <i class="material-icons icon">water_drop</i>
+            <span class="nav-text">Nivel del Tanque</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <img src="assets/img/yo.jpg" class="user-avatar" alt="User" />
+        <div class="user-details">
+          <span class="user-name">Osvaldo Figueroa</span>
+          <span class="user-role-badge">Admin</span>
+        </div>
+      </div>
+      <div class="footer-actions">
+        <a href="#" class="footer-link">
+          <i class="material-icons icon">settings</i>
+          <span>Settings</span>
+        </a>
+        <a href="#" class="footer-link logout">
+          <i class="material-icons icon">logout</i>
+          <span>Log out</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
