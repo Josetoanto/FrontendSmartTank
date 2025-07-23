@@ -1,3 +1,25 @@
+/* Layout horizontal para sidebar y dashboard */
+.dashboard-layout {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.sidebar {
+  min-width: 220px;
+  max-width: 260px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  border-radius: 0 10px 10px 0;
+}
+
+.water-quality-dashboard {
+  flex: 1;
+  padding: 2rem;
+  background: transparent;
+  min-width: 0;
+}
 .water-quality-dashboard {
   padding: 2rem;
   background-color: #f8fafc;

@@ -1,15 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule],
   templateUrl: './sidebar.html',
+  imports: [CommonModule, ],
   styleUrl: './sidebar.scss'
 })
 export class Sidebar {
   collapsed = false;
   collapsedOnMobile = false;
+
+  
 
   toggleSidebar() {
     // Si es mobile, alterna collapsedOnMobile, si no, alterna collapsed
