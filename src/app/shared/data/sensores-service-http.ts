@@ -10,7 +10,7 @@ const API_BASE = 'http://localhost:8000/sensors';
 export class SensoresServiceHttp {
   constructor(private http: HttpClient) {}
 
-  // Obtener últimas lecturas
+  // Obtener todas las últimas lecturas
   getLastReadings(): Observable<any> {
     return this.http.get(`${API_BASE}/`);
   }
@@ -29,10 +29,24 @@ export class SensoresServiceHttp {
   getLastConductivityReading(): Observable<any> {
     return this.http.get(`${API_BASE}/conductivity`);
   }
-  
-  getAvgPh(): Observable<number> {
-  return this.http.get<number>(`${API_BASE}/sensors/ph/avg`);
 
-    
-}
+  // Obtener promedio de pH
+  getAvgPh(): Observable<number> {
+    return this.http.get<number>(`${API_BASE}/ph/avg`);
+  }
+
+  // Obtener promedio de turbidez
+  getAvgTurbidity(): Observable<number> {
+    return this.http.get<number>(`${API_BASE}/turbidity/avg`);
+  }
+
+  // Obtener promedio de conductividad
+  getAvgConductivity(): Observable<number> {
+    return this.http.get<number>(`${API_BASE}/conductivity/avg`);
+  }
+
+  // Obtener historial de lecturas por tipo
+  getReadingsByType(sensorType: string): Observable<any> {
+    return this.http.get(`${API_BASE}/${sensorType}/history`);
+  }
 }

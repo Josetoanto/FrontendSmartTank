@@ -16,10 +16,7 @@
   width: calc(100% - 90px);
   overflow-x: hidden;
   
-<<<<<<< HEAD
-  // Cuando el sidebar está expandido
-=======
->>>>>>> Uli
+  // Cuando git el sidebar está expandido
   :host-context(.sidebar:hover) & {
     margin-left: 260px;
   }
@@ -168,10 +165,7 @@
   .water-quality-dashboard {
     padding: 1rem;
     margin-left: 70px;
-<<<<<<< HEAD
     width: calc(100% - 70px);
-=======
->>>>>>> Uli
   }
 
   .header {
@@ -182,10 +176,7 @@
 
   :host-context(.sidebar:hover) .water-quality-dashboard {
     margin-left: 240px;
-<<<<<<< HEAD
     width: calc(100% - 240px);
-=======
->>>>>>> Uli
   }
 
   .metrics-grid {

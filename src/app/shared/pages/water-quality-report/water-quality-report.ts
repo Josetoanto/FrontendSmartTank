@@ -1,69 +1,91 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { WebSocketService } from '../../../features/example/data/web-socket-service';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { Sidebar } from '../../components/sidebar/sidebar';
+import { SensoresServiceHttp } from '../../data/sensores-service-http';
+import { SensoresServiceWs } from '../../data/sensores-service-ws';
 
 Chart.register(...registerables);
 
-
 @Component({
   selector: 'app-water-quality-report',
+  standalone: true,
   imports: [CommonModule, Sidebar],
   templateUrl: './water-quality-report.html',
   styleUrl: './water-quality-report.scss'
 })
-export class WaterQualityReport implements AfterViewInit{
+export class WaterQualityReport implements AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('qualityCanvas') qualityCanvas?: ElementRef<HTMLCanvasElement>;
-  
+
   private chart?: Chart;
   private qualityChart: any;
 
-  private sensorData: number[] = [];
+  public turbidityValues: number[] = [];
+  public turbidityDates: string[] = [];
 
-  // Métricas para las tarjetas
+  public lastTurbidity: number | null = null;
+  public avgTurbidity: number | null = null;
+
   public alerts = 15;
-  public alertsTrend = 'up'; // 'up' o 'down'
+  public alertsTrend = 'up';
   public lostDeals = 4;
   public waterQuality = 84;
 
-  // Datos para el gráfico semanal
-  private weeklyLabels = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-  private weeklyData = [1800, 1900, 2000, 2200, 1900, 2100, 2000];
-
-  constructor(private webSocketService: WebSocketService) { }
+  constructor(
+    private httpService: SensoresServiceHttp,
+    private wsService: SensoresServiceWs
+  ) {}
 
   ngAfterViewInit() {
     setTimeout(() => {
-      this.createChart();
-      this.createQualityChart();
-      
-      // Suscribirse a los datos del WebSocket
-      this.webSocketService.getMessages().subscribe((msg) => {
-        // msg: SensorMessage { sensor: string, data: { [key: string]: any }, date: string }
-        const name = msg.sensor;
-        const sensorData = msg.data;
-
-        if (!name || !sensorData) {
-          console.warn('Datos inválidos recibidos:', msg);
-          return;
-        }
-
-        // Solo procesar datos del sensor de pH
-        if (name === 'pH Sensor' || name.toLowerCase().includes('ph')) {
-          const phValue = sensorData['pH'] ?? sensorData['value'] ?? sensorData;
-          if (typeof phValue === 'number') {
-            this.sensorData.push(phValue);
-            if (this.sensorData.length > 10) {
-              this.sensorData.shift();
-            }
-            this.updateChart();
-            this.updateMetrics();
-          }
-        }
-      });
+      this.fetchLastTurbidityReadings();
+      this.fetchLastTurbidity();
+      this.fetchAvgTurbidity();
+      this.connectToWebSocket();
     }, 0);
+  }
+
+  private fetchLastTurbidityReadings() {
+    this.httpService.getLastReadings().subscribe((readings: any[]) => {
+      const turbidityReadings = readings
+        .filter(r => r.sensor?.toLowerCase() === 'turbidez' && r.data?.value !== undefined)
+        .slice(-7);
+
+      this.turbidityValues = turbidityReadings.map(r => r.data.value);
+      this.turbidityDates = turbidityReadings.map(r => this.formatDate(r.date));
+
+      this.createChart();
+      this.updateMetrics();
+    });
+  }
+
+  private fetchLastTurbidity() {
+    this.httpService.getLastTurbidityReading().subscribe((data: any) => {
+      if (data?.data?.value !== undefined) {
+        this.lastTurbidity = data.data.value;
+      }
+    });
+  }
+
+  private fetchAvgTurbidity() {
+    this.httpService.getAvgTurbidity().subscribe((avg: number) => {
+      this.avgTurbidity = avg;
+    });
+  }
+
+  private connectToWebSocket() {
+    this.wsService.connect('/ws').subscribe((msg: any) => {
+      if (msg.sensor?.toLowerCase() === 'turbidez' && msg.data?.value !== undefined) {
+        this.turbidityValues.push(msg.data.value);
+        if (this.turbidityValues.length > 7) {
+          this.turbidityValues.shift();
+        }
+        this.updateChart();
+        this.updateMetrics();
+        this.lastTurbidity = msg.data.value;
+      }
+    });
   }
 
   private createChart() {
@@ -75,10 +97,10 @@ export class WaterQualityReport implements AfterViewInit{
     this.chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: this.weeklyLabels,
+        labels: this.turbidityDates,
         datasets: [{
-          label: 'pH Level',
-          data: this.weeklyData,
+          label: 'Turbidez (NTU)',
+          data: this.turbidityValues,
           borderColor: '#22d3ee',
           backgroundColor: 'rgba(34, 211, 238, 0.1)',
           borderWidth: 3,
@@ -100,33 +122,67 @@ export class WaterQualityReport implements AfterViewInit{
         },
         scales: {
           x: {
-            grid: {
-              display: false
-            },
+            grid: { display: false },
             ticks: {
               color: '#9ca3af',
-              font: {
-                size: 12
-              }
+              font: { size: 12 }
             }
           },
           y: {
-            beginAtZero: false,
-            min: 1000,
-            max: 3000,
-            grid: {
-              color: '#f3f4f6'
-            },
+            beginAtZero: true,
+            min: 0,
+            max: 10,
+            grid: { color: '#f3f4f6' },
             ticks: {
               color: '#9ca3af',
-              font: {
-                size: 12
-              }
+              font: { size: 12 }
             }
           }
         }
       }
     });
+  }
+
+  private updateChart() {
+    if (!this.chart) return;
+
+    const chartData = [...this.turbidityValues];
+    while (chartData.length < 7) {
+      chartData.unshift(0);
+    }
+
+    this.chart.data.datasets[0].data = chartData;
+    this.chart.data.labels = this.turbidityDates;
+    this.chart.update('none');
+  }
+
+  private updateMetrics() {
+    if (this.turbidityValues.length > 0) {
+      const alertCount = this.turbidityValues.filter(value => value > 5).length;
+      const alertPercentage = Math.round((alertCount / this.turbidityValues.length) * 100);
+      if (alertPercentage !== this.alerts) {
+        this.alertsTrend = alertPercentage > this.alerts ? 'up' : 'down';
+        this.alerts = alertPercentage;
+      }
+
+      const avg = this.turbidityValues.reduce((a, b) => a + b, 0) / this.turbidityValues.length;
+      this.avgTurbidity = avg;
+
+      if (avg <= 1) {
+        this.waterQuality = 100;
+      } else if (avg <= 5) {
+        this.waterQuality = Math.floor(85 - (avg - 1) * 10);
+      } else {
+        this.waterQuality = Math.max(30, 60 - (avg - 5) * 5);
+      }
+
+      this.lostDeals = Math.floor(this.alerts / 4);
+
+      if (this.qualityChart) {
+        this.qualityChart.data.datasets[0].data = [this.waterQuality, 100 - this.waterQuality];
+        this.qualityChart.update('none');
+      }
+    }
   }
 
   private createQualityChart() {
@@ -157,49 +213,6 @@ export class WaterQualityReport implements AfterViewInit{
     });
   }
 
-  private updateChart() {
-    if (!this.chart) return;
-
-    // Actualizar con datos reales del sensor pH
-    if (this.sensorData.length > 0) {
-      const latestData = this.sensorData.slice(-7);
-      // Si tenemos menos de 7 datos, completar con los datos simulados
-      const chartData = [...latestData];
-      while (chartData.length < 7) {
-        chartData.unshift(this.weeklyData[chartData.length]);
-      }
-      this.chart!.data.datasets[0].data = chartData;
-      this.chart!.update('none');
-    }
-  }
-
-  private updateMetrics() {
-    // Actualizar métricas basadas en los datos del sensor
-    if (this.sensorData.length > 0) {
-      // Calcular alertas basadas en valores pH fuera del rango óptimo (6.5-8.5)
-      const alertCount = this.sensorData.filter(value => value < 6.5 || value > 8.5).length;
-      const alertPercentage = Math.round((alertCount / this.sensorData.length) * 100);
-      if (alertPercentage !== this.alerts) {
-        this.alertsTrend = alertPercentage > this.alerts ? 'up' : 'down';
-        this.alerts = alertPercentage;
-      }
-      // Calcular calidad del agua basada en el promedio de pH
-      const avgPH = this.sensorData.reduce((sum, val) => sum + val, 0) / this.sensorData.length;
-      if (avgPH >= 6.5 && avgPH <= 8.5) {
-        this.waterQuality = Math.min(100, Math.floor(85 + (Math.random() * 15)));
-      } else {
-        this.waterQuality = Math.max(60, Math.floor(75 - Math.abs(avgPH - 7.0) * 10));
-      }
-      // Actualizar lost deals basado en alertas
-      this.lostDeals = Math.floor(this.alerts / 4);
-      // Actualizar gráfico de calidad
-      if (this.qualityChart) {
-        this.qualityChart.data.datasets[0].data = [this.waterQuality, 100 - this.waterQuality];
-        this.qualityChart.update('none');
-      }
-    }
-  }
-
   getTrendIcon(): string {
     return this.alertsTrend === 'up' ? '↗' : '↘';
   }
@@ -212,5 +225,10 @@ export class WaterQualityReport implements AfterViewInit{
     if (this.waterQuality >= 80) return '#10b981';
     if (this.waterQuality >= 60) return '#f59e0b';
     return '#ef4444';
+  }
+
+  private formatDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return `${date.getDate()}/${date.getMonth() + 1}`;
   }
 }

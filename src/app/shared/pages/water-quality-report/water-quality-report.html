@@ -18,29 +18,21 @@
 
     <div class="metrics-grid">
       <div class="metric-card">
-        <h3>Alertas y notificaciones</h3>
+        <h3>Última lectura de Turbidez</h3>
         <div class="metric-value">
-          <span class="value">{{ alerts }}%</span>
-          <span class="trend" [style.color]="getTrendColor()">{{ getTrendIcon() }}</span>
+          <span class="value">{{ lastTurbidity !== null ? (lastTurbidity | number:'1.2-2') : 'Cargando...' }}</span>
         </div>
-        <p class="metric-description">
-          Lorem ipsum dolor sit amet consectetur adipiscing elit. 
-          Dolor sit amet consectetur adipiscing elit quisque 
-          faucibus.
-        </p>
+        <p class="metric-description">Última medición desde el sensor de turbidez.</p>
       </div>
-
+      
       <div class="metric-card">
-        <h3>Lost deals</h3>
+        <h3>Promedio de Turbidez</h3>
         <div class="metric-value">
-          <span class="value">{{ lostDeals }}%</span>
+          <span class="value">{{ avgTurbidity !== null ? (avgTurbidity | number:'1.2-2') : 'Cargando...' }}</span>
         </div>
-        <p class="metric-description">
-          Lorem ipsum dolor sit amet consectetur adipiscing elit. 
-          Dolor sit amet consectetur adipiscing elit quisque 
-          faucibus.
-        </p>
+        <p class="metric-description">Promedio de turbidez en las últimas lecturas.</p>
       </div>
+      
 
       <div class="metric-card quality-card">
         <h3>Calidad del agua</h3>
