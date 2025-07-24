@@ -1,5 +1,7 @@
+<div class="app-layout">
+  <app-sidebar></app-sidebar> 
+  <div class="main-content">
 <div class="tank-three-column-layout">
-  <!-- Panel de información y controles a la izquierda -->
   <div class="info-controls-section">
     <div class="info-panel">
       <div class="level-display">
@@ -43,7 +45,6 @@
     </div>
   </div>
 
-  <!-- Tanque en el centro -->
   <div class="tank-center-section">
     <div class="header">
       <h1>Monitoreo del Nivel del Tanque</h1>
@@ -66,7 +67,6 @@
               <span>Tanque Vacío</span>
             </div>
           </div>
-          <!-- Indicadores de nivel -->
           <div class="level-indicators">
             <div class="level-marker" style="top: 10%">
               <span class="marker-label">90%</span>
@@ -89,7 +89,6 @@
     </div>
   </div>
 
-  <!-- Sensores a la derecha -->
   <div class="sensors-section">
     <div class="sensors-panel">
       <h3>Monitoreo de Sensores</h3>
@@ -108,7 +107,7 @@
           <div class="pollution-bar-bg">
             <div class="pollution-bar" [ngStyle]="{ width: waterPollution + '%', background: getPollutionColor() }"></div>
           </div>
-          <div class="pollution-percentage">{{ waterPollution.toFixed(0) }}%</div>
+          <div class="pollution-percentage">Calidad del agua</div>
         </div>
         <div class="pollution-status">{{ getPollutionStatus() }}</div>
       </div>
@@ -128,4 +127,6 @@
       </div>
     </div>
   </div>
-</div> 
+ </div>
+  </div>
+</div>

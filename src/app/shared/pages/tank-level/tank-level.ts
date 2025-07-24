@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Sidebar } from '../../components/sidebar/sidebar';
 
 @Component({
   selector: 'app-tank-level',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,Sidebar],
   templateUrl: './tank-level.html',
   styleUrl: './tank-level.scss'
 })
