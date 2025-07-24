@@ -7,6 +7,7 @@ import { WaterQualityReport } from './shared/pages/water-quality-report/water-qu
 import { WaterQuality } from './shared/pages/water-quality/water-quality';
 import { TankLevel } from './shared/pages/tank-level/tank-level';
 import { Sidebar } from './shared/components/sidebar/sidebar';
+import { ErrorPage } from './shared/pages/error-page/error-page';
 
 export const routes: Routes = [
     { path: 'login', component: Login },
@@ -16,5 +17,6 @@ export const routes: Routes = [
     { path: 'water2', component: WaterQualityReport },
     { path: 'water3', component: WaterQuality },
     { path: 'tank-level', component: TankLevel },
+    { path: '**', component: ErrorPage },
     { path: 'sidebar', component: Sidebar },
 ];

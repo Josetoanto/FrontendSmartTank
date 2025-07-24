@@ -7,14 +7,19 @@ import { WaterQualityReport } from '../../shared/pages/water-quality-report/wate
 import { WaterQuality } from '../../shared/pages/water-quality/water-quality';
 import { Sidebar } from '../../shared/components/sidebar/sidebar';
 import { TankLevel } from '../../shared/pages/tank-level/tank-level';
+import { WaterHistogram } from '../../shared/pages/water-histogram/water-histogram';
+import { ErrorPage } from '../../shared/pages/error-page/error-page';
 
 export const userRoute: Routes = [
-    {path: 'login', component: Login},
-    {path: 'register', component: Register},
-    {path: '', component: LadingPage},
-    {path: 'water', component: WaterQualityChart},
-    {path: 'water2', component: WaterQualityReport},
-    {path: 'water3', component: WaterQuality},
-    {path: 'tank-level', component: TankLevel},
-    {path:  'sidebar', component: Sidebar},
+        {path: '', component: LadingPage},
+        {path: 'register', component: Register},
+        {path: 'login', component: Login},
+        {path: 'water-frecuence', component: WaterQualityChart},
+        {path: 'water-bar', component: WaterQualityReport},
+        {path: 'water-cake', component: WaterQuality},
+        {path: 'water-histogram', component: WaterHistogram},
+        {path: 'tank-level', component: TankLevel},
+        { path: '**', component: ErrorPage },
+        {path:  'sidebar', component: Sidebar},
 ];
+
