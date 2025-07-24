@@ -1,7 +1,9 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -11,30 +13,44 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './register.scss'
 })
 export class Register {
-  modoRegistro = true;
   formularioRegistro: FormGroup;
 
-  correo: string = '';
-  password: string = '';
-  confirmacion: string = '';
-
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
     this.formularioRegistro = this.fb.group({
       correo: ['', [Validators.required, Validators.email]],
       contrasena: ['', [Validators.required, Validators.minLength(6)]],
       repetirContrasena: ['', [Validators.required]]
-    });
+    }, { validators: this.validarCoincidenciaContrasena });
+  }
+
+  validarCoincidenciaContrasena(group: AbstractControl): ValidationErrors | null {
+    const pass = group.get('contrasena')?.value;
+    const confirm = group.get('repetirContrasena')?.value;
+    return pass === confirm ? null : { noCoincide: true };
   }
 
   registrarUsuario() {
-    if (this.correo && this.password && this.confirmacion) {
-      if (this.password === this.confirmacion) {
-        alert('Usuario registrado correctamente');
-      } else {
-        alert('Las contraseñas no coinciden');
-      }
+    if (this.formularioRegistro.valid) {
+      const { correo, contrasena } = this.formularioRegistro.value;
+      const usuario = {
+        id_user: '',
+        email: correo,
+        password: contrasena
+      };
+
+      this.http.post('http://127.0.0.1:8000/user/signup', usuario).subscribe({
+        next: (res) => {
+          alert('Usuario registrado correctamente');
+          this.formularioRegistro.reset();
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          alert('Error al registrar usuario');
+          console.error(err);
+        }
+      });
     } else {
-      alert('Por favor llena todos los campos');
+      alert('Por favor llena todos los campos correctamente');
     }
   }
 
@@ -52,6 +68,5 @@ export class Register {
 
   cambiarModo(event: Event) {
     event.preventDefault();
-    this.modoRegistro = false;
   }
 }

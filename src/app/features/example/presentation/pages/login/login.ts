@@ -1,12 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface LoginData {
-  email: string;
-  password: string;
-}
 
 @Component({
   selector: 'app-login',
@@ -16,110 +12,70 @@ interface LoginData {
   styleUrl: './login.scss'
 })
 export class Login {
-  loginData: LoginData = {
-    email: '',
-    password: ''
-  };
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
   isLoading = false;
 
-  correo: string = '';
-  password: string = '';
+  handleLogin(event: Event, email: string, password: string): void {
+    event.preventDefault();
 
-  constructor(private router: Router) {}
-
-  onLogin(): void {
     if (this.isLoading) return;
-
-    console.log('Login attempt with:', this.loginData);
     this.isLoading = true;
 
-    // Simulate API call
-    setTimeout(() => {
+    if (!email || !password) {
+      this.showErrorMessage('Por favor llena todos los campos');
       this.isLoading = false;
-      
-      // Mock successful login
-      if (this.loginData.email && this.loginData.password) {
-        console.log('Login successful!');
+      return;
+    }
+
+    const body = { email, password };
+
+    this.http.post<{ token: string }>('http://127.0.0.1:8000/user/login', body).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        console.log('Login exitoso', res);
+        // Guarda el token en localStorage
+        if (res && res.token) {
+          localStorage.setItem('authToken', res.token);
+        }
         this.showSuccessMessage('Login exitoso!');
-        
-        // Navigate to dashboard or home page
-        // this.router.navigate(['/dashboard']);
-      } else {
-        this.showErrorMessage('Por favor llena todos los campos');
+        this.router.navigate(['/water']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error de login', err);
+        this.showErrorMessage('Credenciales incorrectas o error del servidor.');
       }
-    }, 2000);
+    });
   }
 
   onForgotPassword(event: Event): void {
     event.preventDefault();
-    console.log('Forgot password clicked');
-    this.showInfoMessage('Password reset link will be sent to your email');
-    
-    // Here you would typically navigate to forgot password page
-    // this.router.navigate(['/forgot-password']);
+    this.showInfoMessage('Funcionalidad de recuperación aún no implementada.');
   }
 
   loginWithGoogle(): void {
-    console.log('Google login clicked');
-    this.showInfoMessage('Google login integration needed');
-    
-    // Here you would integrate with Google OAuth
-    // Example: this.authService.loginWithGoogle();
+    this.showInfoMessage('Google login no implementado todavía.');
   }
 
   loginWithGithub(): void {
-    console.log('GitHub login clicked');
-    this.showInfoMessage('GitHub login integration needed');
-    
-    // Here you would integrate with GitHub OAuth
-    // Example: this.authService.loginWithGithub();
+    this.showInfoMessage('GitHub login no implementado todavía.');
   }
 
   loginWithFacebook(): void {
-    console.log('Facebook login clicked');
-    this.showInfoMessage('Facebook login integration needed');
-    
-    // Here you would integrate with Facebook OAuth
-    // Example: this.authService.loginWithFacebook();
-  }
-
-  switchToRegister(event: Event): void {
-    event.preventDefault();
-    console.log('Switching to register');
-    
-    // Navigate to register page
-    this.router.navigate(['/register']);
+    this.showInfoMessage('Facebook login no implementado todavía.');
   }
 
   private showSuccessMessage(message: string): void {
-    // You can integrate with a toast notification service here
     alert(message);
   }
 
   private showErrorMessage(message: string): void {
-    // You can integrate with a toast notification service here
     alert(message);
   }
 
   private showInfoMessage(message: string): void {
-    // You can integrate with a toast notification service here
     alert(message);
   }
-
-  iniciarSesion(): void {
-    if (this.isLoading) return;
-    this.isLoading = true;
-    // Simula la lógica de login
-    setTimeout(() => {
-      this.isLoading = false;
-      if (this.correo && this.password) {
-        this.showSuccessMessage('Login exitoso!');
-        // this.router.navigate(['/dashboard']);
-      } else {
-        this.showErrorMessage('Por favor llena todos los campos');
-      }
-    }, 2000);
-  }
 }
-

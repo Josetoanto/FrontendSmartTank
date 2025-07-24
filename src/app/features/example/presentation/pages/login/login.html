@@ -1,29 +1,28 @@
-
 <div class="tarjeta">
   <div class="logo">
     <a href="/">
-  <img src="assets/icon/logoTank.png" alt="LogoSmartTank">
+      <img src="assets/icon/logoTank.png" alt="LogoSmartTank">
     </a>
     <span>Smart Tank</span>
   </div>
 
   <h2 class="titulo">Iniciar Sesión</h2>
 
-  <form>
-    <input type="email" placeholder="ejemplo@email.com" required />
-    <input type="password" placeholder="Contraseña" required />
+  <form (submit)="handleLogin($event, emailInput.value, passwordInput.value)">
+    <input #emailInput type="email" placeholder="ejemplo@email.com" required />
+    <input #passwordInput type="password" placeholder="Contraseña" required />
 
-    <a href="#" class="enlace">¿Olvidaste tu contraseña?</a>
+    <a href="#" class="enlace" (click)="onForgotPassword($event)">¿Olvidaste tu contraseña?</a>
 
     <button type="submit">Iniciar Sesión</button>
   </form>
 
-  <div class="divisor">PROXIMAMENTE</div>
+  <div class="divisor">o continúa con</div>
 
   <div class="sociales">
-    <button><img src="assets/icon/google.svg" alt="Google" /></button>
-    <button><img src="assets/icon/github.svg" alt="GitHub" /></button>
-    <button><img src="assets/icon/facebook.svg" alt="Facebook" /></button>
+    <button type="button" (click)="loginWithGoogle()"><img src="assets/icon/google.svg" alt="Google" /></button>
+    <button type="button" (click)="loginWithGithub()"><img src="assets/icon/github.svg" alt="GitHub" /></button>
+    <button type="button" (click)="loginWithFacebook()"><img src="assets/icon/facebook.svg" alt="Facebook" /></button>
   </div>
 
   <div class="texto-inferior">
