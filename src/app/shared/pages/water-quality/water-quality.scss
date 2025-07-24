@@ -1,69 +1,170 @@
-.contenedor {
+.dashboard {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+app-sidebar {
+  flex-shrink: 0;
+}
+
+.contenido {
+  flex: 1;
   padding: 2rem;
-  background-color: #f8f9fa;
+  background-color: #f8fafc;
   font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
 
   h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #1f2937;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
   }
 
   .subtitulo {
-    color: #6b7280;
-    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+    font-weight: 400;
   }
 
   .grafica {
     background: white;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: center;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-  }
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-  .grafica canvas {
-    max-width: 320px;
-    max-height: 320px;
-    width: 100% !important;
-    height: auto !important;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -2px rgba(0, 0, 0, 0.08);
+    }
+
+    canvas {
+      max-width: 320px;
+      width: 100%;
+      height: auto;
+    }
   }
 
   .tarjetas {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: auto; // Ocupa espacio restante sin scroll
 
     .tarjeta {
-      background: white;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      flex: 1 1 200px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      position: relative;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+      }
 
       h3 {
-        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-left: 1rem;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4px;
+          height: 1.5rem;
+          background: linear-gradient(180deg, #60a5fa, #34d399);
+          border-radius: 2px;
+        }
       }
 
       .valor {
-        font-size: 1.5rem;
-        font-weight: bold;
+        font-size: 2.8rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        line-height: 1;
+        margin-bottom: 1rem;
+        color: #0f172a;
+
+        .porcentaje {
+          background: linear-gradient(135deg, #1e293b, #334155);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
 
         .positivo {
-          color: green;
-          font-weight: bold;
+          background: linear-gradient(135deg, #10b981, #34d399);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-size: 1.5rem;
         }
 
-        &.grande {
-          font-size: 2rem;
-          color: #facc15;
+        &.grande .porcentaje {
+          background: linear-gradient(135deg, #facc15, #f59e0b);
+          font-size: 3.5rem;
         }
       }
+
+      p {
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+    }
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .tarjetas {
+      gap: 1rem;
+    }
+
+    .tarjeta {
+      padding: 1.5rem;
+
+      .valor {
+        font-size: 2.2rem;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    .subtitulo {
+      font-size: 1rem;
+    }
+
+    .tarjeta .valor {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 }

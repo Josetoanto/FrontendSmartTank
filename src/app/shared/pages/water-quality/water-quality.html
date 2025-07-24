@@ -1,6 +1,7 @@
-<div style="display: flex; min-height: 100vh;">
+<div class="dashboard">
   <app-sidebar></app-sidebar>
-  <div class="contenedor" style="flex: 1;">
+
+  <div class="contenido">
     <h1>Informes de calidad del agua</h1>
     <p class="subtitulo">Evalúa la eficacia de tu purificación de agua</p>
 
@@ -17,18 +18,20 @@
     <div class="tarjetas">
       <div class="tarjeta">
         <h3>Alertas y notificaciones</h3>
-        <p class="valor">15% <span class="positivo">↑</span></p>
-        <p>Lorem ipsum dolor sit amet consectetur adipiscing elit.</p>
+        <p class="valor"><span class="porcentaje">15%</span> <span class="positivo">↑</span></p>
+        <p>Detectadas anomalías en sensores de presión y oxígeno.</p>
       </div>
+
       <div class="tarjeta">
-        <h3>Lost deals</h3>
-        <p class="valor">4%</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipiscing elit.</p>
+        <h3>Incidencias registradas</h3>
+        <p class="valor"><span class="porcentaje">4%</span></p>
+        <p>Eventos críticos durante la última semana.</p>
       </div>
+
       <div class="tarjeta">
         <h3>Calidad del agua</h3>
-        <p class="valor grande">84%</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipiscing elit.</p>
+        <p class="valor grande"><span class="porcentaje">84%</span></p>
+        <p>Promedio general según las últimas mediciones.</p>
       </div>
     </div>
   </div>
