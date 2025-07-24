@@ -13,10 +13,10 @@
 
   <h2 class="titulo">Crear Cuenta</h2>
 
-  <form>
-    <input type="email" placeholder="ejemplo@email.com" required />
-    <input type="password" placeholder="Contraseña" required />
-    <input type="password" placeholder="Repetir contraseña" required />
+  <form [formGroup]="formularioRegistro" (ngSubmit)="registrarUsuario()">
+    <input type="email" formControlName="correo" placeholder="ejemplo@email.com" required />
+    <input type="password" formControlName="contrasena" placeholder="Contraseña" required />
+    <input type="password" formControlName="repetirContrasena" placeholder="Repetir contraseña" required />
 
     <button type="submit">Crear Cuenta</button>
   </form>
@@ -24,9 +24,9 @@
   <div class="divisor">PROXIMAMENTE</div>
 
   <div class="sociales">
-    <button><img src="assets/icon/google.svg" alt="Google" /></button>
-    <button><img src="assets/icon/github.svg" alt="GitHub" /></button>
-    <button><img src="assets/icon/facebook.svg" alt="Facebook" /></button>
+    <button type="button" (click)="registrarseConGoogle()"><img src="assets/icon/google.svg" alt="Google" /></button>
+    <button type="button" (click)="registrarseConGithub()"><img src="assets/icon/github.svg" alt="GitHub" /></button>
+    <button type="button" (click)="registrarseConFacebook()"><img src="assets/icon/facebook.svg" alt="Facebook" /></button>
   </div>
 
   <div class="texto-inferior">
