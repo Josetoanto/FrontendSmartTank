@@ -1,11 +1,46 @@
 .tank-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: white;
 }
 
+
+
+
+.app-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+    background-color: #f8fafc;
+
+  
+  app-sidebar {
+    flex-shrink: 0; // El sidebar no se comprime
+    width: 250px; // O el ancho que necesites
+  }
+  
+  .main-content {
+    flex: 1; // Ocupa el resto del espacio
+    overflow-x: auto; // Por si el contenido es muy ancho
+  }
+}.app-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  
+  app-sidebar {
+    flex-shrink: 0; // El sidebar no se comprime
+    width: auto; // O el ancho que necesites
+  }
+  
+  .main-content {
+    flex: 1; // Ocupa el resto del espacio
+    width: auto;
+    overflow-x: hidden; // Por si el contenido es muy ancho
+    margin-left: 0px;
+  }
+}
 .header {
   text-align: center;
   margin-bottom: 3rem;
@@ -453,7 +488,6 @@
   padding: 2rem;
   margin-bottom: 3rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
-
   h3 {
     text-align: center;
     margin-bottom: 2rem;
@@ -703,7 +737,6 @@
   flex-direction: column;
   align-items: flex-end;
   justify-content: flex-start;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem 0 2rem 0;
 }
 
@@ -883,15 +916,17 @@
 } 
 
 .tank-three-column-layout {
-  width: 100vw;
+  width: 85vw;
   min-height: 100vh;
+  margin-top: 50px;
+  margin-left: 50px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem 0 2rem 0;
   gap: 2.5rem;
+  background-color: #f8fafc;
+  border-radius: 15px;
 }
 
 .info-controls-section {
@@ -901,6 +936,10 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 2rem;
+  margin-top: 150px;
+  background-color: white;
+  padding: 35px;
+  border-radius: 15px;
 }
 
 .tank-center-section {
@@ -921,9 +960,10 @@
 }
 
 .sensors-panel {
-  width: 100%;
+  padding: 25px;
+  width: 80%;
   max-width: 400px;
-  margin-left: auto;
+  background-color: #ffffff
 }
 
 @media (max-width: 1200px) {
@@ -952,3 +992,4 @@
     max-width: 100vw;
   }
 } 
+

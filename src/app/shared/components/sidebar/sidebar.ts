@@ -1,21 +1,19 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.html',
-  imports: [CommonModule, ],
-  styleUrl: './sidebar.scss'
+  styleUrls: ['./sidebar.scss']
 })
 export class Sidebar {
   collapsed = false;
   collapsedOnMobile = false;
 
-  
-
   toggleSidebar() {
-    // Si es mobile, alterna collapsedOnMobile, si no, alterna collapsed
     if (window.innerWidth <= 768) {
       this.collapsedOnMobile = !this.collapsedOnMobile;
     } else {
@@ -24,10 +22,8 @@ export class Sidebar {
     }
   }
 
-  menuItems = [
-    { icon: 'bar_chart', label: 'Seguimiento', active: false },
-    { icon: 'show_chart', label: 'Graficas', active: true },
-    { icon: 'receipt', label: 'Informes de', active: false },
-    { icon: 'track_changes', label: 'Objetivos de', active: false }
-  ];
+  logout() {
+    // lógica para cerrar sesión, limpiar tokens, redirigir, etc.
+    console.log('Cerrando sesión...');
+  }
 }
