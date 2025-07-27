@@ -10,18 +10,16 @@ import { Sidebar } from '../../components/sidebar/sidebar';
   styleUrl: './tank-level.scss'
 })
 export class TankLevel implements OnInit, OnDestroy {
-  waterLevel = 100; // Nivel inicial del agua (100%)
+  waterLevel = 100; 
   isAnimating = false;
   private animationInterval: any;
 
-  // Datos de sensores (solo los requeridos)
   sensorData = {
-    ph: 7.2, // pH del agua
-    conductivity: 450, // Conductividad en µS/cm
-    turbidity: 2.1 // Turbidez en NTU
+    ph: 7.2, 
+    conductivity: 450,
+    turbidity: 2.1 
   };
 
-  // Calidad y contaminación del agua
   waterQuality = 0;
   waterPollution = 0;
 
@@ -41,7 +39,6 @@ export class TankLevel implements OnInit, OnDestroy {
     let quality = 100;
     let pollution = 0;
 
-    // pH (rango óptimo: 6.5-8.5)
     if (this.sensorData.ph < 6.5 || this.sensorData.ph > 8.5) {
       quality -= 30;
       pollution += 30;
@@ -50,7 +47,6 @@ export class TankLevel implements OnInit, OnDestroy {
       pollution += 10;
     }
 
-    // Turbidez (rango óptimo: < 5 NTU)
     if (this.sensorData.turbidity > 5) {
       quality -= 40;
       pollution += 40;
@@ -59,7 +55,6 @@ export class TankLevel implements OnInit, OnDestroy {
       pollution += 15;
     }
 
-    // Conductividad (rango óptimo: 200-800)
     if (this.sensorData.conductivity < 200 || this.sensorData.conductivity > 800) {
       quality -= 20;
       pollution += 20;
@@ -116,13 +111,13 @@ export class TankLevel implements OnInit, OnDestroy {
 
   getPollutionColor() {
     if (this.waterPollution < 30) {
-      return '#27ae60'; // Verde
+      return '#27ae60'; 
     } else if (this.waterPollution < 60) {
-      return '#f1c40f'; // Amarillo
+      return '#f1c40f'; 
     } else if (this.waterPollution < 80) {
-      return '#e67e22'; // Naranja
+      return '#e67e22'; 
     } else {
-      return '#e74c3c'; // Rojo
+      return '#e74c3c'; 
     }
   }
 
@@ -132,11 +127,10 @@ export class TankLevel implements OnInit, OnDestroy {
     
     this.animationInterval = setInterval(() => {
       if (this.waterLevel > 0) {
-        this.waterLevel -= 0.5; // Baja 0.5% cada 100ms
+        this.waterLevel -= 0.5; 
       } else {
         this.isAnimating = false;
         clearInterval(this.animationInterval);
-        // Reiniciar la animación después de 2 segundos
         setTimeout(() => {
           this.startWaterLevelAnimation();
         }, 2000);
@@ -157,10 +151,9 @@ export class TankLevel implements OnInit, OnDestroy {
     }
     this.isAnimating = false;
     
-    // Animación suave para vaciar el tanque
     const targetLevel = 0;
     const currentLevel = this.waterLevel;
-    const steps = 50; // 50 pasos para la animación
+    const steps = 50; 
     const stepSize = (currentLevel - targetLevel) / steps;
     let currentStep = 0;
     
@@ -172,7 +165,7 @@ export class TankLevel implements OnInit, OnDestroy {
         this.waterLevel = 0;
         clearInterval(emptyInterval);
       }
-    }, 20); // 20ms entre cada paso = 1 segundo total
+    }, 20);
   }
 
   fillTank() {
@@ -181,10 +174,9 @@ export class TankLevel implements OnInit, OnDestroy {
     }
     this.isAnimating = false;
     
-    // Animación suave para llenar el tanque
     const targetLevel = 100;
     const currentLevel = this.waterLevel;
-    const steps = 50; // 50 pasos para la animación
+    const steps = 50; 
     const stepSize = (targetLevel - currentLevel) / steps;
     let currentStep = 0;
     
@@ -196,7 +188,7 @@ export class TankLevel implements OnInit, OnDestroy {
         this.waterLevel = 100;
         clearInterval(fillInterval);
       }
-    }, 20); // 20ms entre cada paso = 1 segundo total
+    }, 20); 
   }
 
   getWaterLevelStyle() {

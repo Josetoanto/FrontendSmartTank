@@ -21,5 +21,7 @@ export const userRoute: Routes = [
         {path: 'tank-level', component: TankLevel},
         { path: '**', component: ErrorPage },
         {path:  'sidebar', component: Sidebar},
+        {path:  'water4', component: WaterHistogram},
+
 ];
 
