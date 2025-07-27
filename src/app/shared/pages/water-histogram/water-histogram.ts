@@ -49,7 +49,7 @@ private sensorSubscription!: Subscription;
 
   ngOnInit(): void {
     // Conéctate a tu WebSocket (reemplaza por tu URL real)
-    this.socket$ = new WebSocketSubject('ws://localhost:8080/sensores');
+    this.socket$ = new WebSocketSubject('http://localhost:8000/sensors');
 
     this.sensorSubscription = this.socket$.subscribe((message) => {
       // Se espera que el mensaje sea un objeto como:
