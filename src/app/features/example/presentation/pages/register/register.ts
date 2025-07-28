@@ -39,6 +39,9 @@ export class Register {
         password: contrasena
       };
 
+      this.http.post('https://smarttank.backend.upprojects.online/user/signup', usuario).subscribe({
+        next: (res) => {
+          alert('Usuario registrado correctamente');
       this.http.post('http://127.0.0.1:8000/user/signup', usuario).subscribe({
         next: () => {
           Swal.fire({

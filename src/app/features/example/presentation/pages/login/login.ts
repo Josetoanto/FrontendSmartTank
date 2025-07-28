@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -33,15 +33,15 @@ export class Login {
 
     const body = { email, password };
 
-    this.http.post<{ token: string }>('http://127.0.0.1:8000/user/login', body).subscribe({
+    this.http.post<{ token: string }>('https://smarttank.backend.upprojects.online/user/login', body).subscribe({
       next: (res) => {
         this.isLoading = false;
         console.log('Login exitoso', res);
         if (res && res.token) {
           localStorage.setItem('authToken', res.token);
         }
-        this.showSuccessMessage('¡Inicio de sesión exitoso!');
-        this.router.navigate(['/water']);
+        this.showSuccessMessage('Login exitoso!');
+        this.router.navigate(['/water-frecuence']);
       },
       error: (err) => {
         this.isLoading = false;

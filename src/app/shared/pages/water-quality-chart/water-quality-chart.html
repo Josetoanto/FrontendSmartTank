@@ -18,29 +18,31 @@
           </span>
         </div>
       </div>
-      <div class="chart-content">
+      <!-- Aquí agregamos altura y ancho explícitos al contenedor del canvas -->
+      <div class="chart-content" style="height: 400px; width: 100%;">
         <canvas #chartCanvas></canvas>
       </div>
     </div>
+
     <!-- Metrics Grid -->
     <div class="metrics-grid">
       <!-- Alertas y notificaciones -->
-       
+
       <div class="metric-card">
-  <div class="metric-header">
-    <h4>Última lectura de pH</h4>
-  </div>
-  <div class="metric-content">
-    <div class="metric-value">
-      <span class="percentage">
-        {{ phLastValue !== null ? (phLastValue | number:'1.2-2') : 'Cargando...' }}
-      </span>
-    </div>
-    <p class="metric-description">
-      Última medición tomada desde el sensor de pH.
-    </p>
-  </div>
-</div>
+        <div class="metric-header">
+          <h4>Última lectura de pH</h4>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">
+            <span class="percentage">
+              {{ phLastValue !== null ? (phLastValue | number:'1.2-2') : 'Cargando...' }}
+            </span>
+          </div>
+          <p class="metric-description">
+            Última medición tomada desde el sensor de pH.
+          </p>
+        </div>
+      </div>
 
 
       <!-- Lost deals -->

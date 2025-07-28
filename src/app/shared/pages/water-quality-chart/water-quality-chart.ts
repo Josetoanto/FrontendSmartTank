@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ChangeDetectorRef, ElementRef, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SensoresServiceWs } from '../../data/sensores-service-ws';
 import { SensoresServiceHttp } from '../../data/sensores-service-http';
@@ -14,7 +14,7 @@ Chart.register(...registerables);
   templateUrl: './water-quality-chart.html',
   styleUrl: './water-quality-chart.scss'
 })
-export class WaterQualityChart implements OnInit {
+export class WaterQualityChart implements AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas?: ElementRef<HTMLCanvasElement>;
   private chart?: Chart;
 
@@ -26,13 +26,16 @@ export class WaterQualityChart implements OnInit {
   phLastValue: number | null = null; // Variable para última lectura pH
 
   constructor(
+    private httpService: SensoresServiceHttp,
     private wsService: SensoresServiceWs,
-    private httpService: SensoresServiceHttp
+    private cd: ChangeDetectorRef,
+    private ngZone: NgZone // <-- Inyectamos NgZone
   ) { }
 
-  ngOnInit() {
+  ngAfterViewInit(): void {
+    this.fetchLastPh();
     this.fetchLastPhReadings();
-    this.fetchLastPh(); // Obtener última lectura individual pH
+    this.connectToWebSocket();  // <-- Mover aquí para una sola conexión
   }
 
   // Obtiene última lectura individual y asigna phLastValue
@@ -41,6 +44,7 @@ export class WaterQualityChart implements OnInit {
       console.log('Última lectura de pH:', data);
       if (data && data.data && data.data.value !== undefined) {
         this.phLastValue = data.data.value;
+        this.cd.detectChanges();
       }
     });
   }
@@ -63,23 +67,25 @@ export class WaterQualityChart implements OnInit {
         this.updateChart();
       }
       this.calculateWaterQuality();
-      this.connectToWebSocket();
     });
   }
 
   private connectToWebSocket() {
     this.wsService.connect('/ws').subscribe((msg: any) => {
+      console.log('Mensaje WSS recibido:', msg); // <-- Log para debug
       if (msg.sensor?.toLowerCase() === 'ph' && msg.data?.value !== undefined) {
-        this.phValues.push(msg.data.value);
-        this.phDates.push(msg.date ? this.formatDate(msg.date) : '');
+        this.ngZone.run(() => {
+          this.phValues.push(msg.data.value);
+          this.phDates.push(msg.date ? this.formatDate(msg.date) : '');
 
-        if (this.phValues.length > 12) {
-          this.phValues.shift();
-          this.phDates.shift();
-        }
+          if (this.phValues.length > 12) {
+            this.phValues.shift();
+            this.phDates.shift();
+          }
 
-        this.updateChart();
-        this.calculateWaterQuality();
+          this.updateChart();
+          this.calculateWaterQuality();
+        });
       }
     });
   }

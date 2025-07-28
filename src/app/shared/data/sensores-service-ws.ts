@@ -7,7 +7,7 @@ export interface SensorMessage {
   date?: string;
 }
 
-const WS_BASE = 'ws://localhost:8000/sensors';
+const WS_BASE = 'wss://smarttank.backend.upprojects.online/sensors';
 
 @Injectable({
   providedIn: 'root'
