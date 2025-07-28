@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractContro
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register',
@@ -41,29 +42,59 @@ export class Register {
       this.http.post('https://smarttank.backend.upprojects.online/user/signup', usuario).subscribe({
         next: (res) => {
           alert('Usuario registrado correctamente');
+      this.http.post('http://127.0.0.1:8000/user/signup', usuario).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Registro exitoso!',
+            text: 'Tu cuenta ha sido creada correctamente.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           this.formularioRegistro.reset();
           this.router.navigate(['/login']);
         },
         error: (err) => {
-          alert('Error al registrar usuario');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar',
+            text: 'Ocurrió un problema al registrar tu cuenta.',
+          });
           console.error(err);
         }
       });
     } else {
-      alert('Por favor llena todos los campos correctamente');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos inválidos',
+        text: 'Por favor llena todos los campos correctamente.',
+      });
     }
   }
 
   registrarseConGoogle() {
-    alert('Registro con Google no implementado');
+    Swal.fire({
+      icon: 'info',
+      title: 'Google',
+      text: 'Registro con Google no implementado todavía.',
+    });
   }
 
   registrarseConGithub() {
-    alert('Registro con GitHub no implementado');
+    Swal.fire({
+      icon: 'info',
+      title: 'GitHub',
+      text: 'Registro con GitHub no implementado todavía.',
+    });
   }
 
   registrarseConFacebook() {
-    alert('Registro con Facebook no implementado');
+    Swal.fire({
+      icon: 'info',
+      title: 'Facebook',
+      text: 'Registro con Facebook no implementado todavía.',
+    });
   }
 
   cambiarModo(event: Event) {
