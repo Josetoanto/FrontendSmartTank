@@ -7,6 +7,13 @@
       <p>Evalúa la eficacia de tu purificación de agua</p>
     </div>
 
+    <!-- Botón para cambiar modo simulación -->
+    <div class="simulacion-controls">
+      <button (click)="alternarModo()">
+        Actualizar datos
+      </button>
+    </div>
+
     <!-- Chart Container -->
     <div class="chart-container">
       <div class="chart-header">
@@ -18,16 +25,14 @@
           </span>
         </div>
       </div>
-      <!-- Aquí agregamos altura y ancho explícitos al contenedor del canvas -->
-      <div class="chart-content" style="height: 400px; width: 100%;">
+      <div class="chart-content">
         <canvas #chartCanvas></canvas>
       </div>
     </div>
 
     <!-- Metrics Grid -->
     <div class="metrics-grid">
-      <!-- Alertas y notificaciones -->
-
+      <!-- Última lectura pH -->
       <div class="metric-card">
         <div class="metric-header">
           <h4>Última lectura de pH</h4>
@@ -44,24 +49,22 @@
         </div>
       </div>
 
-
-      <!-- Lost deals -->
+      <!-- Promedio pH -->
       <div class="metric-card">
         <div class="metric-header">
-          <h4>Última lectura de pH</h4>
+          <h4>Promedio de pH (últimos 12)</h4>
         </div>
         <div class="metric-content">
           <div class="metric-value">
             <span class="percentage">
-              {{ phLastValue !== null ? (phLastValue | number:'1.2-2') : 'Cargando...' }}
+              {{ avgPh }}
             </span>
           </div>
           <p class="metric-description">
-            Última medición tomada desde el sensor de pH.
+            Promedio de los datos simulados más recientes.
           </p>
         </div>
       </div>
-
 
       <!-- Calidad del agua -->
       <div class="metric-card quality-card">
@@ -84,10 +87,10 @@
             </div>
           </div>
           <p class="metric-description">
-            Lorem ipsum dolor sit amet consectetur adipiscing elit.
-
+            Evaluación de la calidad del agua basada en el promedio de pH.
           </p>
         </div>
       </div>
     </div>
   </div>
+</div>

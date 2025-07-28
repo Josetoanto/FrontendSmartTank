@@ -44,9 +44,4 @@ export class SensoresServiceHttp {
   getAvgConductivity(): Observable<number> {
     return this.http.get<number>(`${API_BASE}/conductivity/avg`);
   }
-
-  // Obtener historial de lecturas por tipo
-  getReadingsByType(sensorType: string): Observable<any> {
-    return this.http.get(`${API_BASE}/${sensorType}/history`);
-  }
 }

@@ -6,9 +6,15 @@
       <p class="subtitle">Evalúa la eficacia de tu purificación de agua</p>
     </div>
 
+    <div class="actions">
+      <button (click)="startDirtyWaterSimulation()" class="btn-dirty">
+        Actualizar datos
+      </button>
+    </div>
+
     <div class="chart-container">
       <div class="chart-header">
-        <span class="chart-title">Analisis en tiempo real</span>
+        <span class="chart-title">Análisis en tiempo real</span>
         <span class="chart-subtitle">DATOS</span>
       </div>
       <div class="chart-wrapper">
@@ -33,7 +39,6 @@
         <p class="metric-description">Promedio de turbidez en las últimas lecturas.</p>
       </div>
       
-
       <div class="metric-card quality-card">
         <h3>Calidad del agua</h3>
         <div class="quality-chart-container">
@@ -43,7 +48,7 @@
           </div>
         </div>
         <p class="metric-description">
-          Lorem ipsum dolor sit amet consectetur adipiscing elit.
+          Basado en el promedio reciente de turbidez.
         </p>
       </div>
     </div>

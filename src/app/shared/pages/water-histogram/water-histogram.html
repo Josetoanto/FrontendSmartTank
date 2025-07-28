@@ -1,8 +1,26 @@
 <div class="histograma-container">
-    <app-sidebar></app-sidebar>
-  <canvas baseChart
-    [data]="chartData"
-    [options]="chartOptions"
-    [type]="'bar'">
-  </canvas>
+  <app-sidebar></app-sidebar>
+
+  <div class="histograma-content">
+    <h2>Histograma de Calidad del Agua</h2>
+
+    <div class="main-content">
+      <div class="chart-wrapper">
+        <h4>Conductividad Eléctrica</h4>
+        <canvas #chartCanvas></canvas>
+      </div>
+
+      <div class="info-panel">
+        <button (click)="alternarModo()" class="toggle-btn">
+          {{ simulandoAguaLimpia ? 'Agua Sucia' : 'Agua Limpia' }}
+        </button>
+
+        <div class="metrics">
+          <p><strong>Última lectura:</strong> {{ conductLastValue?.toFixed(2) ?? 'Cargando...' }} µS/cm</p>
+          <p><strong>Promedio:</strong> {{ avgConduct.toFixed(2) }} µS/cm</p>
+          <p><strong>Calidad del agua:</strong> {{ waterQualityPercentage }}%</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

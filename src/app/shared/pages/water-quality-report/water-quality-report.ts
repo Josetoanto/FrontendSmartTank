@@ -2,8 +2,6 @@ import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { Sidebar } from '../../components/sidebar/sidebar';
-import { SensoresServiceHttp } from '../../data/sensores-service-http';
-import { SensoresServiceWs } from '../../data/sensores-service-ws';
 
 Chart.register(...registerables);
 
@@ -32,60 +30,51 @@ export class WaterQualityReport implements AfterViewInit {
   public lostDeals = 4;
   public waterQuality = 84;
 
-  constructor(
-    private httpService: SensoresServiceHttp,
-    private wsService: SensoresServiceWs
-  ) {}
+  private simulationInterval: any;
+  private isDirtying = false;
+  private simulatedTurbidity = 0.5;
 
   ngAfterViewInit() {
     setTimeout(() => {
-      this.fetchLastTurbidityReadings();
-      this.fetchLastTurbidity();
-      this.fetchAvgTurbidity();
-      this.connectToWebSocket();
+      this.createChart();
+      this.createQualityChart();
+      this.startTurbiditySimulation();
     }, 0);
   }
 
-  private fetchLastTurbidityReadings() {
-    this.httpService.getLastReadings().subscribe((readings: any[]) => {
-      const turbidityReadings = readings
-        .filter(r => r.sensor?.toLowerCase() === 'turbidez' && r.data?.value !== undefined)
-        .slice(-7);
+  private startTurbiditySimulation() {
+    this.simulationInterval = setInterval(() => {
+    let change = (Math.random() * 1.5) - 0.75;
 
-      this.turbidityValues = turbidityReadings.map(r => r.data.value);
-      this.turbidityDates = turbidityReadings.map(r => this.formatDate(r.date));
-
-      this.createChart();
-      this.updateMetrics();
-    });
-  }
-
-  private fetchLastTurbidity() {
-    this.httpService.getLastTurbidityReading().subscribe((data: any) => {
-      if (data?.data?.value !== undefined) {
-        this.lastTurbidity = data.data.value;
+      if (this.isDirtying && this.simulatedTurbidity < 9.5) {
+        change += 0.1;
       }
-    });
+
+      this.simulatedTurbidity += change;
+      this.simulatedTurbidity = Math.max(0, Math.min(this.simulatedTurbidity, 10));
+
+      this.pushSimulatedTurbidity(this.simulatedTurbidity);
+    }, 2000);
   }
 
-  private fetchAvgTurbidity() {
-    this.httpService.getAvgTurbidity().subscribe((avg: number) => {
-      this.avgTurbidity = avg;
-    });
+  public startDirtyWaterSimulation() {
+    this.isDirtying = true;
   }
 
-  private connectToWebSocket() {
-    this.wsService.connect('/ws').subscribe((msg: any) => {
-      if (msg.sensor?.toLowerCase() === 'turbidez' && msg.data?.value !== undefined) {
-        this.turbidityValues.push(msg.data.value);
-        if (this.turbidityValues.length > 7) {
-          this.turbidityValues.shift();
-        }
-        this.updateChart();
-        this.updateMetrics();
-        this.lastTurbidity = msg.data.value;
-      }
-    });
+  private pushSimulatedTurbidity(value: number) {
+    const date = new Date().toISOString();
+
+    this.turbidityValues.push(parseFloat(value.toFixed(2)));
+    this.turbidityDates.push(this.formatDate(date));
+
+    if (this.turbidityValues.length > 7) {
+      this.turbidityValues.shift();
+      this.turbidityDates.shift();
+    }
+
+    this.lastTurbidity = value;
+    this.updateChart();
+    this.updateMetrics();
   }
 
   private createChart() {
@@ -116,9 +105,7 @@ export class WaterQualityReport implements AfterViewInit {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            display: false
-          }
+          legend: { display: false }
         },
         scales: {
           x: {
@@ -146,12 +133,7 @@ export class WaterQualityReport implements AfterViewInit {
   private updateChart() {
     if (!this.chart) return;
 
-    const chartData = [...this.turbidityValues];
-    while (chartData.length < 7) {
-      chartData.unshift(0);
-    }
-
-    this.chart.data.datasets[0].data = chartData;
+    this.chart.data.datasets[0].data = this.turbidityValues;
     this.chart.data.labels = this.turbidityDates;
     this.chart.update('none');
   }
@@ -205,26 +187,10 @@ export class WaterQualityReport implements AfterViewInit {
         maintainAspectRatio: false,
         cutout: '80%',
         plugins: {
-          legend: {
-            display: false
-          }
+          legend: { display: false }
         }
       } as any
     });
-  }
-
-  getTrendIcon(): string {
-    return this.alertsTrend === 'up' ? '↗' : '↘';
-  }
-
-  getTrendColor(): string {
-    return this.alertsTrend === 'up' ? '#ef4444' : '#10b981';
-  }
-
-  getQualityColor(): string {
-    if (this.waterQuality >= 80) return '#10b981';
-    if (this.waterQuality >= 60) return '#f59e0b';
-    return '#ef4444';
   }
 
   private formatDate(dateStr: string): string {

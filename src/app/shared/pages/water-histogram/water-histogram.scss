@@ -7,35 +7,74 @@
 
 .histograma-container {
   display: flex;
-  flex-direction: row;
-  width: 100%;
-  height: 100%;
-}
-
-app-sidebar {
-  flex: 0 0 auto;
-  height: 100%;
+  height: 100vh;
 }
 
 .histograma-content {
   flex: 1;
-  overflow-y: auto;
-  padding: 2rem;
-  background-color: #f9f9f9;
+  padding: 20px 40px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+}
 
-  h2 {
-    text-align: center;
-    margin-bottom: 1rem;
-    color: #2c3e50;
-  }
+h2 {
+  margin-bottom: 24px;
+  font-weight: 600;
+  color: #111827;
+}
 
-  canvas {
-    width: 100% !important;
-    max-width: 800px;
-    height: 400px !important;
-  }
+.main-content {
+  display: flex;
+  gap: 40px;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.chart-wrapper {
+  flex: 2;
+  max-width: 700px;
+  height: 400px;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+}
+
+.chart-wrapper h4 {
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.info-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.toggle-btn {
+  padding: 12px 24px;
+  background-color: #1cc88a;
+  border: none;
+  color: white;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  align-self: flex-start;
+}
+
+.toggle-btn:hover {
+  background-color: #17a673;
+}
+
+.metrics p {
+  font-size: 16px;
+  color: #374151;
+  margin: 6px 0;
+}
+
+.metrics p strong {
+  color: #111827;
 }

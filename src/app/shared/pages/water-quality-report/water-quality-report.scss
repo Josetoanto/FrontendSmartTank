@@ -22,6 +22,26 @@
   }
 }
 
+.actions {
+  text-align: right;
+  margin-bottom: 1rem;
+
+  .btn-dirty {
+    background-color: #ef4444;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #dc2626;
+    }
+  }
+}
+
+
 .header {
   margin-bottom: 2rem;
 

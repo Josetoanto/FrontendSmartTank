@@ -1,7 +1,5 @@
-import { Component, AfterViewInit, ChangeDetectorRef, ElementRef, ViewChild, NgZone } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SensoresServiceWs } from '../../data/sensores-service-ws';
-import { SensoresServiceHttp } from '../../data/sensores-service-http';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { Sidebar } from '../../components/sidebar/sidebar';
 
@@ -14,7 +12,7 @@ Chart.register(...registerables);
   templateUrl: './water-quality-chart.html',
   styleUrl: './water-quality-chart.scss'
 })
-export class WaterQualityChart implements AfterViewInit {
+export class WaterQualityChartComponent implements OnInit, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas?: ElementRef<HTMLCanvasElement>;
   private chart?: Chart;
 
@@ -23,78 +21,131 @@ export class WaterQualityChart implements AfterViewInit {
 
   public waterQualityPercentage: number = 100;
   public circularProgress: number = 0;
-  phLastValue: number | null = null; // Variable para última lectura pH
 
-  constructor(
-    private httpService: SensoresServiceHttp,
-    private wsService: SensoresServiceWs,
-    private cd: ChangeDetectorRef,
-    private ngZone: NgZone // <-- Inyectamos NgZone
-  ) { }
+  phLastValue: number | null = null;
+  avgPh: number = 0;
 
-  ngAfterViewInit(): void {
-    this.fetchLastPh();
-    this.fetchLastPhReadings();
-    this.connectToWebSocket();  // <-- Mover aquí para una sola conexión
+  simulandoAguaLimpia: boolean = true;
+
+  private simulationIntervalId?: any;
+
+  // Rango actual de pH simulado (inicial agua limpia)
+  private minPh: number = 6.5;
+  private maxPh: number = 8.5;
+
+  // Rango objetivo para transición suave
+  private targetMinPh: number = 6.5;
+  private targetMaxPh: number = 8.5;
+
+  // Paso de cambio gradual en rango pH
+  private transitionStep: number = 0.05;
+
+  ngOnInit() {
+    // No crear gráfica aquí porque canvas no está listo
   }
 
-  // Obtiene última lectura individual y asigna phLastValue
-  private fetchLastPh() {
-    this.httpService.getLastPhReading().subscribe((data: any) => {
-      console.log('Última lectura de pH:', data);
-      if (data && data.data && data.data.value !== undefined) {
-        this.phLastValue = data.data.value;
-        this.cd.detectChanges();
-      }
-    });
+  ngAfterViewInit() {
+    this.createChart();
+    this.iniciarSimulacion();
+    this.iniciarTransicionRango();
   }
 
-  // Obtiene últimas 12 lecturas para gráfica
-  private fetchLastPhReadings() {
-    this.httpService.getLastReadings().subscribe((readings: any[]) => {
-      console.log('Lecturas recibidas del backend:', readings);
+  alternarModo() {
+    this.simulandoAguaLimpia = !this.simulandoAguaLimpia;
+    console.log('Modo cambiado a:', this.simulandoAguaLimpia ? 'Agua Limpia' : 'Agua Sucia');
 
-      const phReadings = readings
-        .filter(r => r.sensor?.toLowerCase() === 'ph' && r.data?.value !== undefined)
-        .slice(-12);
+    if (this.simulandoAguaLimpia) {
+      this.targetMinPh = 6.5;
+      this.targetMaxPh = 8.5;
+    } else {
+      this.targetMinPh = 8.6;
+      this.targetMaxPh = 10.6;
+    }
+  }
 
-      this.phValues = phReadings.map(r => r.data.value);
-      this.phDates = phReadings.map(r => r.date ? this.formatDate(r.date) : '');
-
-      if (!this.chart) {
-        this.createChart();
+  private iniciarTransicionRango() {
+    setInterval(() => {
+      if (Math.abs(this.minPh - this.targetMinPh) > this.transitionStep) {
+        this.minPh += this.minPh < this.targetMinPh ? this.transitionStep : -this.transitionStep;
       } else {
-        this.updateChart();
+        this.minPh = this.targetMinPh;
       }
-      this.calculateWaterQuality();
-    });
+
+      if (Math.abs(this.maxPh - this.targetMaxPh) > this.transitionStep) {
+        this.maxPh += this.maxPh < this.targetMaxPh ? this.transitionStep : -this.transitionStep;
+      } else {
+        this.maxPh = this.targetMaxPh;
+      }
+
+      // Opcional para debug:
+      // console.log(`Rango actual pH: ${this.minPh.toFixed(2)} - ${this.maxPh.toFixed(2)}`);
+    }, 500);
   }
 
-  private connectToWebSocket() {
-    this.wsService.connect('/ws').subscribe((msg: any) => {
-      console.log('Mensaje WSS recibido:', msg); // <-- Log para debug
-      if (msg.sensor?.toLowerCase() === 'ph' && msg.data?.value !== undefined) {
-        this.ngZone.run(() => {
-          this.phValues.push(msg.data.value);
-          this.phDates.push(msg.date ? this.formatDate(msg.date) : '');
+  private simularPh(): number {
+    const val = +(this.minPh + Math.random() * (this.maxPh - this.minPh)).toFixed(2);
+    console.log('Simulando pH:', val, `(rango ${this.minPh.toFixed(2)} - ${this.maxPh.toFixed(2)})`);
+    return val;
+  }
 
-          if (this.phValues.length > 12) {
-            this.phValues.shift();
-            this.phDates.shift();
-          }
+  private iniciarSimulacion() {
+    this.phValues = [];
+    this.phDates = [];
 
-          this.updateChart();
-          this.calculateWaterQuality();
-        });
+    for (let i = 0; i < 12; i++) {
+      const valor = this.simularPh();
+      const fecha = new Date(Date.now() - (12 - i) * 2000).toISOString();
+      this.phValues.push(valor);
+      this.phDates.push(this.formatDate(fecha));
+      this.phLastValue = valor;
+    }
+    console.log('Datos iniciales pH:', this.phValues);
+
+    this.calcularPromedio();
+    this.calculateWaterQuality();
+    this.updateChart();
+
+    if (this.simulationIntervalId) clearInterval(this.simulationIntervalId);
+
+    this.simulationIntervalId = setInterval(() => {
+      const nuevoValor = this.simularPh();
+      const fecha = new Date().toISOString();
+
+      this.phValues.push(nuevoValor);
+      this.phDates.push(this.formatDate(fecha));
+      this.phLastValue = nuevoValor;
+
+      if (this.phValues.length > 12) {
+        this.phValues.shift();
+        this.phDates.shift();
       }
-    });
+
+      console.log('Datos actualizados pH:', this.phValues);
+
+      this.updateChart();
+      this.calcularPromedio();
+      this.calculateWaterQuality();
+    }, 2000);
+  }
+
+  private calcularPromedio() {
+    if (this.phValues.length === 0) return;
+    const suma = this.phValues.reduce((a, b) => a + b, 0);
+    this.avgPh = +(suma / this.phValues.length).toFixed(2);
+    console.log('Promedio pH calculado:', this.avgPh);
   }
 
   private createChart() {
-    if (!this.chartCanvas?.nativeElement) return;
+    if (!this.chartCanvas?.nativeElement) {
+      console.warn('Canvas no disponible para crear gráfica');
+      return;
+    }
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.warn('Contexto 2D no disponible');
+      return;
+    }
 
     const config: ChartConfiguration = {
       type: 'bar',
@@ -158,19 +209,24 @@ export class WaterQualityChart implements AfterViewInit {
     };
 
     this.chart = new Chart(ctx, config);
+    console.log('Gráfica creada');
   }
 
   private updateChart() {
-    if (!this.chart) return;
+    if (!this.chart) {
+      console.warn('No hay gráfica para actualizar');
+      return;
+    }
     this.chart.data.labels = this.phDates.length ? this.phDates : Array(12).fill('');
     this.chart.data.datasets[0].data = this.phValues.length ? this.phValues : Array(12).fill(0);
     this.chart.update('none');
+    console.log('Gráfica actualizada');
   }
 
   private calculateWaterQuality() {
     if (this.phValues.length === 0) return;
 
-    const avgPh = this.phValues.reduce((a, b) => a + b, 0) / this.phValues.length;
+    const avgPh = this.avgPh;
     let quality = 100;
     if (avgPh < 6.5 || avgPh > 8.5) {
       quality -= Math.abs(avgPh - 7.5) * 10;

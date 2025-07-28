@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from './features/example/presentation/pages/login/login';
 import { Register } from './features/example/presentation/pages/register/register';
 import { LadingPage } from './shared/pages/lading-page/lading-page';
-import { WaterQualityChart } from './shared/pages/water-quality-chart/water-quality-chart';
+import { WaterQualityChartComponent } from './shared/pages/water-quality-chart/water-quality-chart';
 import { WaterQualityReport } from './shared/pages/water-quality-report/water-quality-report';
 import { WaterQuality } from './shared/pages/water-quality/water-quality';
 import { TankLevel } from './shared/pages/tank-level/tank-level';
@@ -14,7 +14,7 @@ export const routes: Routes = [
         {path: '', component: LadingPage},
         {path: 'register', component: Register},
         {path: 'login', component: Login},
-        {path: 'water-frecuence', component: WaterQualityChart},
+        {path: 'water-frecuence', component: WaterQualityChartComponent},
         {path: 'water-bar', component: WaterQualityReport},
         {path: 'water-cake', component: WaterQuality},
         {path: 'water-histogram', component: WaterHistogram},
