@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -12,6 +13,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './login.scss'
 })
 export class Login {
+
   private http = inject(HttpClient);
   private router = inject(Router);
 
@@ -35,11 +37,10 @@ export class Login {
       next: (res) => {
         this.isLoading = false;
         console.log('Login exitoso', res);
-        // Guarda el token en localStorage
         if (res && res.token) {
           localStorage.setItem('authToken', res.token);
         }
-        this.showSuccessMessage('Login exitoso!');
+        this.showSuccessMessage('¡Inicio de sesión exitoso!');
         this.router.navigate(['/water']);
       },
       error: (err) => {
@@ -68,14 +69,30 @@ export class Login {
   }
 
   private showSuccessMessage(message: string): void {
-    alert(message);
+    Swal.fire({
+      icon: 'success',
+      title: message,
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
   }
 
   private showErrorMessage(message: string): void {
-    alert(message);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonText: 'Aceptar'
+    });
   }
 
   private showInfoMessage(message: string): void {
-    alert(message);
+    Swal.fire({
+      icon: 'info',
+      title: 'Información',
+      text: message,
+      confirmButtonText: 'Entendido'
+    });
   }
 }
