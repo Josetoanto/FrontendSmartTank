@@ -5,6 +5,30 @@
   min-height: 100vh;
 }
 
+.simulacion-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+
+  button {
+    background-color: #6366f1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #4f46e5;
+    }
+  }
+}
+
+/* Resto de tus estilos existentes */
+
+
 .sidebar {
   min-width: 220px;
   max-width: 260px;
