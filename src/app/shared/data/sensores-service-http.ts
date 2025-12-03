@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-const API_BASE = 'https://smarttank.backend.upprojects.online/sensors';
+const API_BASE = 'http://34.236.154.208:8000/sensors';
 
 @Injectable({
   providedIn: 'root'

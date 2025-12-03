@@ -33,7 +33,7 @@ export class Login {
 
     const body = { email, password };
 
-    this.http.post<{ token: string }>('https://smarttank.backend.upprojects.online/user/login', body).subscribe({
+    this.http.post<{ token: string }>('http://54.81.41.194:8000/user/login', body).subscribe({
       next: (res) => {
         this.isLoading = false;
         console.log('Login exitoso', res);

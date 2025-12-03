@@ -1,15 +1,14 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, BehaviorSubject, Observable } from 'rxjs';
+import { bufferTime, mergeMap, throttleTime } from 'rxjs/operators';
 
-// Define the SensorMessage interface if not already defined elsewhere
 export interface SensorMessage {
   sensor: string;
   data: { [key: string]: any };
-  date: string; // ISO string, adjust parsing if needed
+  date: string; // ISO string
 }
 
-
-const WS_URL = 'ws://localhost:8000/sensors/ws'; // Backend WebSocket URL
+const WS_URL = 'ws://54.81.41.194:8000/sensors/ws';
 
 @Injectable({
   providedIn: 'root'
@@ -18,16 +17,16 @@ export class WebSocketService implements OnDestroy {
   private socket: WebSocket | null = null;
   private messages$ = new Subject<SensorMessage>();
   private connectionStatus$ = new BehaviorSubject<boolean>(false);
-  private reconnectInterval = 5000; // Retry every 5 seconds
+  private reconnectInterval = 5000;
   private reconnectTimer: any = null;
   private isManuallyClosed = false;
 
- constructor() {
+  constructor() {
     this.connect();
   }
 
   private connect(): void {
-    if (typeof window === 'undefined') return; // Prevent SSR errors
+    if (typeof window === 'undefined') return;
 
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
@@ -85,8 +84,13 @@ export class WebSocketService implements OnDestroy {
     }
   }
 
+  // 🔧 Aquí aplicamos manejo de concurrencia
   getMessages(): Observable<SensorMessage> {
-    return this.messages$.asObservable();
+    return this.messages$.pipe(
+      bufferTime(500),        // agrupa mensajes cada 0.5s
+      mergeMap(batch => batch), // los procesa en paralelo
+      throttleTime(100)       // evita saturar la UI si llegan ráfagas
+    );
   }
 
   getConnectionStatus(): Observable<boolean> {

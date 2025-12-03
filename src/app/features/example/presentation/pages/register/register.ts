@@ -39,8 +39,7 @@ export class Register {
         password: contrasena
       };
 
-      // Reemplaza la URL que no funciona si no se desea duplicar
-      this.http.post('https://smarttank.backend.upprojects.online/user/signup', usuario).subscribe({
+      this.http.post('http://54.81.41.194:8000/user/signup', usuario).subscribe({
         next: () => {
           Swal.fire({
             icon: 'success',

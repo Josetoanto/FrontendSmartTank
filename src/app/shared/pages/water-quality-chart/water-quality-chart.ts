@@ -1,7 +1,9 @@
-import { Component, AfterViewInit, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { Sidebar } from '../../components/sidebar/sidebar';
+import { WebSocketService, SensorMessage } from '../../../features/example/data/web-socket-service';
+import { Subscription } from 'rxjs';
 
 Chart.register(...registerables);
 
@@ -10,9 +12,9 @@ Chart.register(...registerables);
   standalone: true,
   imports: [CommonModule, Sidebar],
   templateUrl: './water-quality-chart.html',
-  styleUrl: './water-quality-chart.scss'
+  styleUrls: ['./water-quality-chart.scss'] // ✅ corregido: era styleUrl
 })
-export class WaterQualityChartComponent implements OnInit, AfterViewInit {
+export class WaterQualityChartComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chartCanvas') chartCanvas?: ElementRef<HTMLCanvasElement>;
   private chart?: Chart;
 
@@ -27,18 +29,7 @@ export class WaterQualityChartComponent implements OnInit, AfterViewInit {
 
   simulandoAguaLimpia: boolean = true;
 
-  private simulationIntervalId?: any;
-
-  // Rango actual de pH simulado (inicial agua limpia)
-  private minPh: number = 6.5;
-  private maxPh: number = 8.5;
-
-  // Rango objetivo para transición suave
-  private targetMinPh: number = 6.5;
-  private targetMaxPh: number = 8.5;
-
-  // Paso de cambio gradual en rango pH
-  private transitionStep: number = 0.05;
+  private wsSub?: Subscription;
 
   ngOnInit() {
     // No crear gráfica aquí porque canvas no está listo
@@ -46,86 +37,38 @@ export class WaterQualityChartComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.createChart();
-    this.iniciarSimulacion();
-    this.iniciarTransicionRango();
+
+    // ✅ Suscribirse al WebSocketService
+    this.wsSub = this.wsService.getMessages().subscribe((msg: SensorMessage) => {
+      console.log('🌐 Mensaje WS recibido en WaterQualityChart:', msg);
+
+      if (msg.data?.['ph'] !== undefined) {
+        const newVal = msg.data['ph'];
+        const newLabel = new Date(msg.date).toLocaleTimeString();
+
+        this.phValues.push(newVal);
+        this.phDates.push(newLabel);
+        this.phLastValue = newVal;
+
+        if (this.phValues.length > 12) {
+          this.phValues.shift();
+          this.phDates.shift();
+        }
+
+        this.updateChart();
+        this.calcularPromedio();
+        this.calculateWaterQuality();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.wsSub?.unsubscribe();
   }
 
   alternarModo() {
     this.simulandoAguaLimpia = !this.simulandoAguaLimpia;
     console.log('Modo cambiado a:', this.simulandoAguaLimpia ? 'Agua Limpia' : 'Agua Sucia');
-
-    if (this.simulandoAguaLimpia) {
-      this.targetMinPh = 6.5;
-      this.targetMaxPh = 8.5;
-    } else {
-      this.targetMinPh = 8.6;
-      this.targetMaxPh = 10.6;
-    }
-  }
-
-  private iniciarTransicionRango() {
-    setInterval(() => {
-      if (Math.abs(this.minPh - this.targetMinPh) > this.transitionStep) {
-        this.minPh += this.minPh < this.targetMinPh ? this.transitionStep : -this.transitionStep;
-      } else {
-        this.minPh = this.targetMinPh;
-      }
-
-      if (Math.abs(this.maxPh - this.targetMaxPh) > this.transitionStep) {
-        this.maxPh += this.maxPh < this.targetMaxPh ? this.transitionStep : -this.transitionStep;
-      } else {
-        this.maxPh = this.targetMaxPh;
-      }
-
-      // Opcional para debug:
-      // console.log(`Rango actual pH: ${this.minPh.toFixed(2)} - ${this.maxPh.toFixed(2)}`);
-    }, 500);
-  }
-
-  private simularPh(): number {
-    const val = +(this.minPh + Math.random() * (this.maxPh - this.minPh)).toFixed(2);
-    console.log('Simulando pH:', val, `(rango ${this.minPh.toFixed(2)} - ${this.maxPh.toFixed(2)})`);
-    return val;
-  }
-
-  private iniciarSimulacion() {
-    this.phValues = [];
-    this.phDates = [];
-
-    for (let i = 0; i < 12; i++) {
-      const valor = this.simularPh();
-      const fecha = new Date(Date.now() - (12 - i) * 2000).toISOString();
-      this.phValues.push(valor);
-      this.phDates.push(this.formatDate(fecha));
-      this.phLastValue = valor;
-    }
-    console.log('Datos iniciales pH:', this.phValues);
-
-    this.calcularPromedio();
-    this.calculateWaterQuality();
-    this.updateChart();
-
-    if (this.simulationIntervalId) clearInterval(this.simulationIntervalId);
-
-    this.simulationIntervalId = setInterval(() => {
-      const nuevoValor = this.simularPh();
-      const fecha = new Date().toISOString();
-
-      this.phValues.push(nuevoValor);
-      this.phDates.push(this.formatDate(fecha));
-      this.phLastValue = nuevoValor;
-
-      if (this.phValues.length > 12) {
-        this.phValues.shift();
-        this.phDates.shift();
-      }
-
-      console.log('Datos actualizados pH:', this.phValues);
-
-      this.updateChart();
-      this.calcularPromedio();
-      this.calculateWaterQuality();
-    }, 2000);
   }
 
   private calcularPromedio() {
@@ -167,43 +110,12 @@ export class WaterQualityChartComponent implements OnInit, AfterViewInit {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            align: 'end',
-            labels: {
-              color: '#6366f1',
-              font: { size: 12, weight: 'normal' },
-              usePointStyle: true,
-              pointStyle: 'circle',
-              padding: 20
-            }
-          },
-          tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            titleColor: '#fff',
-            bodyColor: '#fff',
-            cornerRadius: 6,
-            displayColors: false
-          }
+          legend: { display: true, position: 'top' },
+          tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#fff' }
         },
         scales: {
-          y: {
-            beginAtZero: true,
-            min: 0,
-            max: 14,
-            ticks: {
-              stepSize: 2,
-              color: '#9ca3af',
-              font: { size: 11 },
-              callback: (value) => value
-            },
-            grid: { color: '#f3f4f6', lineWidth: 1 }
-          },
-          x: {
-            ticks: { color: '#9ca3af', font: { size: 11 } },
-            grid: { display: false }
-          }
+          y: { beginAtZero: true, min: 0, max: 14 },
+          x: { grid: { display: false } }
         }
       }
     };
@@ -213,10 +125,7 @@ export class WaterQualityChartComponent implements OnInit, AfterViewInit {
   }
 
   private updateChart() {
-    if (!this.chart) {
-      console.warn('No hay gráfica para actualizar');
-      return;
-    }
+    if (!this.chart) return;
     this.chart.data.labels = this.phDates.length ? this.phDates : Array(12).fill('');
     this.chart.data.datasets[0].data = this.phValues.length ? this.phValues : Array(12).fill(0);
     this.chart.update('none');
@@ -244,9 +153,7 @@ export class WaterQualityChartComponent implements OnInit, AfterViewInit {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
       this.circularProgress = progress * targetProgress;
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
+      if (progress < 1) requestAnimationFrame(animate);
     };
     animate();
   }
@@ -260,4 +167,6 @@ export class WaterQualityChartComponent implements OnInit, AfterViewInit {
     const date = new Date(dateStr);
     return `${date.getDate()}/${date.getMonth() + 1}`;
   }
+
+  constructor(private wsService: WebSocketService) {}
 }
